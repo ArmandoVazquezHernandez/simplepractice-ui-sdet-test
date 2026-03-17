@@ -80,6 +80,10 @@ SimplePractice UI SDET Assessment
    *Dynamc clint names are generated to avoid conflicts with existing data.
    *WebDriverManager automatically manage browser drivers.
    *The test focuses on the Happy Path Scenario as required in the assessment.
+   *Future Improvements:
+     1.-Implement Page Object Model(POM)
+     2.-Add test data management
+     3.-Improve locator strategy with dedicated classes
 
   ADDITIONAL NOTE: Due to current hardware limitations, I was not able to execute the automation locally.
                    However, the script has been tructured following Selenium and TestNG best Practices, and it includes the necessary elements to demostrate my approach to UI test automation.
