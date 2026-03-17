@@ -2,6 +2,8 @@ package tests;
 
 import java.time.Duration;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -21,62 +23,69 @@ public class CreateClientTest {
 
     @BeforeTest
     public void setup() {
-
         WebDriverManager.chromedriver().setup();
-        DesiredCapabilities dcap = new DesiredCapabilities();
-        dcap.setCapability(capabilityName:"pageLoadStrategy",value: "normal");
         ChromeOptions options = new ChromeOptions();
+        options.setPageLoadStrategy(PageLoadStrategy.NORMAL);
         options.addArguments("--remote-allow-origins=*");
+
         driver = new ChromeDriver(options);
         driver.manage().window().maximize();
+
         wait = new WebDriverWait(driver, Duration.ofSeconds(15));
         driver.get("https://secure.simplepractice.com");
     }
 
-
     @Test
     public void createClientHappyPath() {
 
-        //NOTE:Replace the credentials with any valid data
+        //NOTE: Replace the credentials with valid ones for the test environment
         String username = "ANY_EMAIL";
         String password = "ANY_PASSWORD";
-
 
         //LOGIN
         By emailField = By.id("user_email");
         By passwordField = By.id("user_password");
-        By singinButton = By.cssSelector(cssSelector: "input[id='submitBtn']");
+        By signInButton = By.cssSelector("input[id='submitBtn']");
 
         wait.until(ExpectedConditions.visibilityOfElementLocated(emailField));
 
         driver.findElement(emailField).sendKeys(username);
         driver.findElement(passwordField).sendKeys(password);
-        driver.findElement(singinButton).click();
-
+        driver.findElement(signInButton).click();
 
         //WAIT FOR DASHBOARD
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.tagName("body")));
 
+        //HANDLE OPTIONAL PRIVACY POPUP
+        try {
+            By acceptButton = By.xpath("//button[contains(.,'Accept') or contains(.,'Aceptar')]");
+            wait.until(ExpectedConditions.elementToBeClickable(acceptButton));
+            driver.findElement(acceptButton).click();
+            System.out.println("Privacy popup accepted.");
+        } catch (Exception e1) {
+            try {
+                By closeButton = By.xpath("//button[contains(@aria-label,'Close') or contains(@aria-label,'Cerrar')]");
+                wait.until(ExpectedConditions.elementToBeClickable(closeButton));
+                driver.findElement(closeButton).click();
+                System.out.println("Privacy popup closed.");
+            } catch (Exception e2) {
+                System.out.println("Privacy popup not present.");
+            }
+        }
 
         //OPEN "+" MENU
-        By plusMenu = By.cssSelector(cssSelector:"button[aria-label='create']");
+        By plusMenu = By.cssSelector("button[aria-label='Create']");
         wait.until(ExpectedConditions.elementToBeClickable(plusMenu));
         driver.findElement(plusMenu).click();
-        try{
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }    
 
         //NEW CLIENT
-        By newClientOption = By.xpath(xpathExpression:"//input[contains(normalize-space(.),'Create Client')]");
+        By newClientOption = By.xpath("//*[contains(normalize-space(.),'Create Client')]");
         wait.until(ExpectedConditions.elementToBeClickable(newClientOption));
         driver.findElement(newClientOption).click();
 
-
         //CLIENT FORM
-        By firstNameField = By.xpath(xpathExpression:"//input[contains(@id,'firstName')]");
-        By lastNameField = By.xpath(xpathExpression:"//input[contains(@id,'lastName')]");
+        By firstNameField = By.xpath("//input[contains(@id,'firstName')]");
+        By lastNameField = By.xpath("//input[contains(@id,'lastName')]");
         wait.until(ExpectedConditions.visibilityOfElementLocated(firstNameField));
 
         String firstName = "Test" + System.currentTimeMillis();
@@ -84,54 +93,50 @@ public class CreateClientTest {
 
         driver.findElement(firstNameField).sendKeys(firstName);
         driver.findElement(lastNameField).sendKeys(lastName);
-        By statusDropdown = By.cssSelector(cssSelector:"button[id*='spds-input-dropdown']");
-        wait.until(ExpectedConditions.elementToBeClickable(statusDropdown));
 
+        //STATUS DROPDOWN
+        By statusDropdown = By.cssSelector("button[id*='spds-input-dropdown']");
+        wait.until(ExpectedConditions.elementToBeClickable(statusDropdown));
         driver.findElement(statusDropdown).click();
 
-
         //SELECT ACTIVE OPTION
-        By activeOption = By.xpath(xpathExpression"//button[@data-value='active']");
+        By activeOption = By.xpath("//button[@data-value='active']");
         wait.until(ExpectedConditions.elementToBeClickable(activeOption));
-        driver.findElement(activeOption).click();
-
-        //DIRECT SCROLL-TO-ELEMENT COMMAND
+        WebElement activeButton = driver.findElement(activeOption);
         ((JavascriptExecutor) driver).executeScript(
-            script:"arguments[0].scrollIntoView({behavior:'instant', block:'center'});",
-            driver.findElement(activeOption));
-        driver.findElement(activeOption).click();
-        
+            "arguments[0].scrollIntoView({behavior:'instant', block:'center'});",
+            activeButton
+        );
+        activeButton.click();
+
         //CONTINUE BUTTON
-        By continueButton = By.xpath(xpathExpression:"//button[normalize-space(.)='Continue']");
+        By continueButton = By.xpath("//button[normalize-space(.)='Continue']");
         wait.until(ExpectedConditions.elementToBeClickable(continueButton));
         driver.findElement(continueButton).click();
 
-
         //CLIENTS PAGE
-        driver.manage().timeouts()implicitlyWait(Duration.ofSeconds(3));
-        By clientsMenu = By.xpath(xpathExpression:"//a[@aria-label='Clients']");
+        By clientsMenu = By.xpath("//a[@aria-label='Clients']");
         wait.until(ExpectedConditions.elementToBeClickable(clientsMenu));
         driver.findElement(clientsMenu).click();
 
         //VERIFY CLIENT EXISTS
-        driver.manage().timeouts()implicitlyWait(Duration.ofSeconds(3));
-        By createdClient = By.xpath("//a[normalize-space()='" + firstName + " Automation']");
-        ((JavascriptExecutor) driver).executeScript(
-            script:"arguments[0].scrollIntoView({behavior:'intant', block:'center'});",
-            driver.findElement(createdClient));
+        By createdClient = By.xpath("//a[normalize-space()='" + firstName + " " + lastName + "']");
         wait.until(ExpectedConditions.visibilityOfElementLocated(createdClient));
         WebElement client = driver.findElement(createdClient);
-        boolean clientFound = client.isDisplayed();
-        Assert.assertTrue(clientFound, message:"Client was not found in Clients list");
-        System.out.println("Client successfully verified: " + firstName);
-    }
+        ((JavascriptExecutor) driver).executeScript(
+            "arguments[0].scrollIntoView({behavior:'instant', block:'center'});",
+            client
+        );
 
+        boolean clientFound = client.isDisplayed();
+        Assert.assertTrue(clientFound, "Client was not found in Clients list");
+        System.out.println("Client successfully verified: " + firstName + " " + lastName);
+    }
 
     @AfterTest
     public void teardown() {
         if (driver != null) {
             driver.quit();
-
         }
     }
 }
