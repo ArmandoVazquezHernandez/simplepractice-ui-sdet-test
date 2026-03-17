@@ -32,13 +32,19 @@ SimplePractice UI SDET Assessment
    7.-Navigate to the "Clients" page
    8.-Verify that the newly created client appears in the clients list
 
-   Project Files:
-   *CreateClientTest.java
-    Selenium automated test that covers the client creation Happy Path.
-   *TASK_CHECKLIST.md
-    Checklist of Happy Path scenarios for the Tasks feature based on exploratory Testing.
-   *pom.xml
-    Maven configuration file containing proect dependencies.
+   Project Structure:
+   simplepractice-ui-sdet-test
+   │
+   ├── src
+   │   └── test
+   │       └── java
+   │           └── tests
+   │               └── CreateClientTest.java
+   │
+   ├── README.md
+   ├── TASKS_CHECKLIST.md
+   └── pom.xml
+      
 
    Setup Instructions:
    1.- Clone the repository
