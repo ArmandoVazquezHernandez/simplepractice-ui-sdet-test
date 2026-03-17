@@ -2,7 +2,7 @@ SimplePractice UI SDET Assessment
    
    Overview:
    This repository contains an automated UI test for the SimplePractice plataform.
-   The test covers a Happy Path Scenario for creating a new clint using Selenium WebDriver.
+   Client creation Happy Path Scenario as described in the assessment instructions using Selenium WebDriver.
 
    The purpose of this proect is to demstrate:
    *UI automation skills
