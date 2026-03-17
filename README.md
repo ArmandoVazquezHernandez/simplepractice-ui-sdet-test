@@ -42,6 +42,7 @@ SimplePractice UI SDET Assessment
 
    Setup Instructions:
    1.- Clone the repository
+     *CreateClientTest.java
 
    2.- Open the Project uing JAVA IDE such as:
     *Eclipse
